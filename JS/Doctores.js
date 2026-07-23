@@ -78,16 +78,19 @@ async function consultarDoctor(){
 
     }
 
-    const response =
-        await fetch(`${API}/doctores/${id}`);
-
-    if(!response.ok){
-
-        alert("Doctor no encontrado");
-
-        return;
-
+    const response = await fetch(`${API}/doctores/${id}`, {
+    headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token")
     }
+});
+
+    console.log("Status:", response.status);
+
+    if (!response.ok) {
+    console.log(await response.text());
+    alert("Error: " + response.status);
+    return;
+}
 
     const doctor =
         await response.json();
@@ -99,89 +102,81 @@ async function consultarDoctor(){
         doctor.especialidad;
 
 }
-async function guardarDoctor(){
 
-    const doctor={
+async function guardarDoctor() {
 
-        nombre:
-            document.getElementById("nombreDoctor").value,
+    const doctor = {
 
-        especialidad:
-            document.getElementById("especialidadDoctor").value
+        nombre: document.getElementById("nombreDoctor").value,
+
+        especialidad: document.getElementById("especialidadDoctor").value
 
     };
 
-    const response =
-        await fetch(`${API}/doctores`,{
+    const response = await fetch(`${API}/doctores`, {
 
-            method:"POST",
+        method: "POST",
 
-            headers:{
+        headers: {
 
-                "Content-Type":"application/json"
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("token")
 
-            },
+        },
 
-            body:JSON.stringify(doctor)
+        body: JSON.stringify(doctor)
 
-        });
+    });
 
-    if(response.ok){
+    if (response.ok) {
 
-        alert("Doctor registrado correctamente");
+        const resultado = await response.json();
+
+        alert(`Doctor registrado correctamente.\nID: ${resultado.id}`);
 
         limpiarDoctor();
 
     }
-    else{
+    else {
 
         alert(await response.text());
 
     }
 
 }
-async function actualizarDoctor(){
 
-    const id =
-        document.getElementById("doctorId").value;
+async function actualizarDoctor() {
 
-    const doctor={
+    const id = document.getElementById("doctorId").value;
 
-        nombre:
-            document.getElementById("nombreDoctor").value,
-
-        especialidad:
-            document.getElementById("especialidadDoctor").value
-
+    const doctor = {
+        nombre: document.getElementById("nombreDoctor").value,
+        especialidad: document.getElementById("especialidadDoctor").value
     };
 
-    const response =
-        await fetch(`${API}/doctores/${id}`,{
+    const response = await fetch(`${API}/doctores/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        body: JSON.stringify(doctor)
+    });
 
-            method:"PUT",
+    console.log("Status:", response.status);
 
-            headers:{
+    const texto = await response.text();
 
-                "Content-Type":"application/json"
-
-            },
-
-            body:JSON.stringify(doctor)
-
-        });
+    console.log(texto);
 
     if(response.ok){
-
         alert("Doctor actualizado");
-
     }
     else{
-
-        alert(await response.text());
-
+        alert("Error " + response.status + "\n" + texto);
     }
-
 }
+
 async function eliminarDoctor(){
 
     const id =
@@ -199,11 +194,15 @@ async function eliminarDoctor(){
         return;
 
     const response =
-        await fetch(`${API}/doctores/${id}`,{
+    await fetch(`${API}/doctores/${id}`,{
 
-            method:"DELETE"
+        method:"DELETE",
 
-        });
+        headers:{
+            "Authorization":"Bearer " + localStorage.getItem("token")
+        }
+
+    });
 
     if(response.ok){
 
